@@ -2,6 +2,14 @@
 
 Main.py is a program for finding filming locations near specific location.
 
+## Installation needed
+
+```bash
+pip install argparse
+pip install folium
+pip install geopy
+```
+
 ## Usage
 
 ```terminal
