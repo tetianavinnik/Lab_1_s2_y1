@@ -75,28 +75,32 @@ def layers_add(lst):
     """
     Add layers to map and save it as html-file.
     """
-    map =  folium.Map(location=[lat, lon], zoom_start = 10)
-    fg1 = folium.FeatureGroup(name="Films")
-    for info in lst:
-        fg1.add_child(folium.Marker(location=[info[3], info[4]],
-                                    radius=10,
-                                    popup='<b>'+info[0]+'</b>'+"\n" + info[1],
-                                    fill_opacity=0.5,
-                                    icon=folium.Icon(color="darkred", icon="film")))
+    if lst == []:
+        print('There are no such locations')
+        sys.exit()
+    else:
+        map =  folium.Map(location=[lat, lon], zoom_start = 10)
+        fg1 = folium.FeatureGroup(name="Films")
+        for info in lst:
+            fg1.add_child(folium.Marker(location=[info[3], info[4]],
+                                        radius=10,
+                                        popup='<b>'+info[0]+'</b>'+"\n" + info[1],
+                                        fill_opacity=0.5,
+                                        icon=folium.Icon(color="darkred", icon="film")))
 
-    folium.TileLayer(
-        tiles="https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}.png",
-        attr='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>\
-              contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-        name='darkmatter',
-        control=False,
-        opacity=0.3,
-        max_zoom=15
-    ).add_to(map)
+        folium.TileLayer(
+            tiles="https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}.png",
+            attr='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>\
+                contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+            name='darkmatter',
+            control=False,
+            opacity=0.3,
+            max_zoom=15
+        ).add_to(map)
 
-    map.add_child(fg1)
-    map.add_child(folium.LatLngPopup())
-    map.save('film_map.html')
+        map.add_child(fg1)
+        map.add_child(folium.LatLngPopup())
+        map.save('film_map.html')
 
 
 layers_add(get_info(path, lat, lon, year))
