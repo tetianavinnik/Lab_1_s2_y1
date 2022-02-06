@@ -41,47 +41,62 @@ def hover_form(lat1, lon1, lat2, lon2):
     return dist
 
 
-with open(path, 'r') as file:
-    lst = []
-    for line in file:
-        if str(year) in line and '(' in line:
-            if '{' in line:
-                line = line[:line.index('{')] + line[line.index('}')-1:]
-            line = line.replace(')', '(').strip().split('(')
-            line[0], line[2] = line[0].strip(), line[2].strip()
-            line = line[:3]
-            geolocator = Nominatim(user_agent="main.py")
-            geocode = RateLimiter(geolocator.geocode, min_delay_seconds=0.000014)
-            location = geolocator.geocode(line[2])
-            if location != None:
-                lt = location.latitude
-                lng = location.longitude
+def get_info(path, lat, lon, year):
+    """
+    (str, float, float) -> list
+    Return list of films with coordinates with
+    appropriate distance from specific place.
+    """
+    with open(path, 'r') as file:
+        lst = []
+        for line in file:
+            if str(year) in line and '(' in line:
+                if '{' in line:
+                    line = line[:line.index('{')] + line[line.index('}')-1:]
+                line = line.replace(')', '(').strip().split('(')
+                line[0], line[2] = line[0].strip(), line[2].strip()
+                line = line[:3]
+                geolocator = Nominatim(user_agent="main.py")
+                geocode = RateLimiter(geolocator.geocode, min_delay_seconds=0.000014)
+                location = geolocator.geocode(line[2])
+                if location != None:
+                    lt = location.latitude
+                    lng = location.longitude
 
-                dist = hover_form(lt, lng, lat, lon)
-                if dist <= 1000:
-                    lst.append(line+[lt, lng])
-                if len(lst) == 10:
-                    break
+                    dist = hover_form(lt, lng, lat, lon)
+                    if dist <= 1000:
+                        lst.append(line+[lt, lng])
+                    if len(lst) == 10:
+                        break
+    return lst
 
-map =  folium.Map(location=[lat, lon], zoom_start = 10)
-fg1 = folium.FeatureGroup(name="Films")
-for info in lst:
-    fg1.add_child(folium.Marker(location=[info[3], info[4]],
-                                      radius=10,
-                                      popup='<b>'+info[0]+'</b>'+"\n" + info[1],
-                                      fill_opacity=0.5,
-                                      icon=folium.Icon(color="darkred", icon="film")))
 
-folium.TileLayer(
-    tiles="https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}.png",
-    attr='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>\
-          contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-    name='darkmatter',
-    control=False,
-    opacity=0.3,
-    max_zoom=15
-).add_to(map)
+def layers_add(lst):
+    """
+    Add layers to map and save it as html-file.
+    """
+    map =  folium.Map(location=[lat, lon], zoom_start = 10)
+    fg1 = folium.FeatureGroup(name="Films")
+    for info in lst:
+        fg1.add_child(folium.Marker(location=[info[3], info[4]],
+                                    radius=10,
+                                    popup='<b>'+info[0]+'</b>'+"\n" + info[1],
+                                    fill_opacity=0.5,
+                                    icon=folium.Icon(color="darkred", icon="film")))
 
-map.add_child(fg1)
-map.add_child(folium.LatLngPopup())
-map.save('film_map.html')
+    folium.TileLayer(
+        tiles="https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}.png",
+        attr='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>\
+              contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+        name='darkmatter',
+        control=False,
+        opacity=0.3,
+        max_zoom=15
+    ).add_to(map)
+
+    map.add_child(fg1)
+    map.add_child(folium.LatLngPopup())
+    map.save('film_map.html')
+
+
+layers_add(get_info(path, lat, lon, year))
