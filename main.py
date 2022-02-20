@@ -80,12 +80,16 @@ def layers_add(lst):
         sys.exit()
     else:
         map =  folium.Map(location=[lat, lon], zoom_start = 10)
-        fg1 = folium.FeatureGroup(name="Films")
-        fg1.add_child(folium.Marker(location=[lat, lon],
+
+        fg0 = folium.FeatureGroup(name="Me")
+        fg0.add_child(folium.Marker(location=[lat, lon],
                       radius=20,
                       popup='<i><b>You are here</b></i>',
                       fill_opacity=0.5,
                       icon=folium.Icon(color='darkblue', icon='user')))
+
+        fg1 = folium.FeatureGroup(name="Films")
+        
         for info in lst:
             fg1.add_child(folium.Marker(location=[info[3], info[4]],
                                         radius=10,
@@ -103,9 +107,12 @@ def layers_add(lst):
             max_zoom=15
         ).add_to(map)
 
+        map.add_child(fg0)
         map.add_child(fg1)
         map.add_child(folium.LatLngPopup())
+        folium.LayerControl(collapsed=True).add_to(map)
         map.save('film_map.html')
 
 
 layers_add(get_info(path, lat, lon, year))
+# python main.py 2019 43.2295  -84.2487 locations.list
