@@ -115,4 +115,3 @@ def layers_add(lst):
 
 
 layers_add(get_info(path, lat, lon, year))
-# python main.py 2019 43.2295  -84.2487 locations.list
