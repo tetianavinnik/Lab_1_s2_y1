@@ -28,8 +28,8 @@ if not os.path.exists(path) or not os.path.isfile(path):
 
 def hover_form(lat1, lon1, lat2, lon2):
     """
-    Return distance.
     (float) -> float
+    Return distance.
     >>> print(hover_form(33.3697, -106.3477, -4.1122, -63.9844))
     5928.850286041364
     """
@@ -50,7 +50,7 @@ def get_info(path, lat, lon, year):
     with open(path, 'r') as file:
         lst = []
         for line in file:
-            if str(year) in line and '(' in line:
+            if '('+str(year)+')' in line:
                 if '{' in line:
                     line = line[:line.index('{')] + line[line.index('}')-1:]
                 line = line.replace(')', '(').strip().split('(')
@@ -64,7 +64,7 @@ def get_info(path, lat, lon, year):
                     lng = location.longitude
 
                     dist = hover_form(lt, lng, lat, lon)
-                    if dist <= 1000:
+                    if dist <= 500:
                         lst.append(line+[lt, lng])
                     if len(lst) == 10:
                         break
@@ -76,11 +76,16 @@ def layers_add(lst):
     Add layers to map and save it as html-file.
     """
     if lst == []:
-        print('There are no such locations')
+        print('There is no such locations')
         sys.exit()
     else:
         map =  folium.Map(location=[lat, lon], zoom_start = 10)
         fg1 = folium.FeatureGroup(name="Films")
+        fg1.add_child(folium.Marker(location=[lat, lon],
+                      radius=20,
+                      popup='<i><b>You are here</b></i>',
+                      fill_opacity=0.5,
+                      icon=folium.Icon(color='darkblue', icon='user')))
         for info in lst:
             fg1.add_child(folium.Marker(location=[info[3], info[4]],
                                         radius=10,
@@ -90,7 +95,7 @@ def layers_add(lst):
 
         folium.TileLayer(
             tiles="https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}.png",
-            attr='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>\
+            attr='&copy; <a href="https://www.openstreetmap.org/copyright">MapQuest Open Aerial</a>\
                 contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
             name='darkmatter',
             control=False,
