@@ -25,6 +25,9 @@ if not os.path.exists(path) or not os.path.isfile(path):
     print('Error: The file specified does not exist')
     sys.exit()
 
+if year > 2020 or year < 1888:
+    print('There`re no such films. Try enother year.')
+    sys.exit()
 
 def hover_form(lat1, lon1, lat2, lon2):
     """
@@ -111,7 +114,7 @@ def layers_add(lst):
         map.add_child(fg1)
         map.add_child(folium.LatLngPopup())
         folium.LayerControl(collapsed=True).add_to(map)
-        map.save('film_map.html')
+        map.save('film_map1.html')
 
 
 layers_add(get_info(path, lat, lon, year))
